@@ -1,0 +1,74 @@
+<?php
+
+/*
+ * Implements hook_init().
+ * Provides js and css for main menu dropdown
+ */
+function menu_content_init() {
+  if (variable_get('menu_content_items')) {
+    $menu_content_items =  explode("\n", variable_get('menu_content_items', ''));
+    $processed_content_items = array();
+      foreach ($menu_content_items as $content_item) {
+        if (!empty($content_item)) {
+          //Split the item into the key|value elements
+          $content_item_elements = explode("|", $content_item);
+          //Get the path associated with the menu item
+          $path = $content_item_elements[0];
+          //Get the module for the block
+          $module = trim($content_item_elements[1]);
+          //Get the delta of the block
+          $delta = trim($content_item_elements[2]);
+          //Load the block
+          $block = block_load($module, $delta);
+          //Add the rendered block to an array
+          $rendered_block = _block_get_renderable_array(_block_render_blocks(array($block)));
+          $processed_content_items[$path] = drupal_render($rendered_block);
+        }
+      }
+    drupal_add_css(drupal_get_path('module', 'menu_content') . '/css/menu-content.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
+    drupal_add_js(drupal_get_path('module', 'menu_content') . '/js/menu-content.js', 'file');
+    drupal_add_js(array('menu_content' => $processed_content_items), 'setting');
+  }
+}
+
+/*
+ * Implements hook_menu().
+ */
+function menu_content_menu() {
+  $items = array();
+  /* Provides an administrative page to associate menu items with views*/
+  $items['admin/structure/menu/manage/main-menu/menu-content'] = array(
+    'title' => 'Menu Content Admin Settings',
+    'description' => 'Configuration which content to associate with each menu item',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_content_settings_form'),
+    'access arguments' => array('administer menu content'),
+  );
+  return $items;
+}
+
+/*
+ * Administrative form for the menu settings.
+ */
+function menu_content_settings_form() {
+  $form = array();
+  $form['menu_content_items'] = array(
+    '#title' => t('The block associated with each path'),
+    '#description' => t('Choose which block to associate with each path. Use the format path|module|delta, whether the path is the link in the menu, the module is the module providing the block, and the delta is the delta of the particular block to include for the menu item'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('menu_content_items', array()),
+  );
+  return system_settings_form($form);
+}
+
+/*
+ * Implements hook_permission().
+ */
+function menu_content_permission() {
+  return array(
+    'administer menu content' => array(
+      'title' => t('Administer menu content'),
+      'description' => t('Choose which blocks to display in the menu dropdowns'),
+    ),
+  );
+}

@@ -1,0 +1,3 @@
+name = Menu Content
+description = Adds a menu block to each top-level menu item
+core = 7.x

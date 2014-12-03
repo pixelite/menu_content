@@ -1,0 +1,15 @@
+#block-system-main-menu > div.content > ul.menu > li {
+  position: relative;
+}
+#block-system-main-menu > div.content > ul.menu > li .menu-content {
+  background: #fff;
+  padding: 20px;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  display: none;
+  z-index: 100;
+}
+#block-system-main-menu > div.content > ul.menu > li:hover .menu-content {
+  display: block;
+}
