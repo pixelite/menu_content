@@ -2,7 +2,12 @@
     attach: function (context) {
       $('#block-system-main-menu > div.content > ul.menu > li.expanded', context).once(function() {
         //Get the current menu item's link
-        var item = $(this).find('a').attr('href').substring(1);
+        if ($(this).find('a').attr('href').search('http')) {
+          var item = $(this).find('a').attr('href').substring(1);
+        } else {
+          var item = $(this).find('a').attr('href');
+        }
+        alert(item);
         //Create the dropdown content object
         var menuContent = Drupal.settings.menu_content[item];
         //Get the current menu's submenus
